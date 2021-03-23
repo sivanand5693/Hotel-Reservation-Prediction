@@ -24,8 +24,8 @@ np.random.seed(seed)
 
 
 #loading data file
-hotel=pd.read_csv('C:\Purdue\Spring 2020\CS 578\Project\hotel\Final Submission\Hotel-Reservation-Prediction\hotel_bookings.csv')
-#hotel = pd.read_csv('hotel_bookings.csv')
+#hotel=pd.read_csv('C:\Purdue\Spring 2020\CS 578\Project\hotel\Final Submission\Hotel-Reservation-Prediction\data\hotel_bookings.csv')
+hotel = pd.read_csv('.\data\hotel_bookings.csv')
 
 #details about dataset
 
@@ -75,37 +75,6 @@ def f4(row):
     
 hotel_upd['children'] = hotel_upd.apply(f4, axis=1)
 
-#define accuracy measure(reservation_status = predicted reservation status)
-def accuracy_score(row):
-    if row[0]==row[1]:
-        val=1
-    else:
-        val=0
-    return val
-
-#creating function to obtain ROC parameters
-def calcRates(y_vals,probs):
-    
-    #convert to arrays
-    y_vals = np.array(y_vals)
-    probs = np.array(probs)
-
-    # sort the indexs by their probabilities
-    index = np.argsort(probs, kind="quicksort")[::-1]
-    probs = probs[index]
-    y_vals = y_vals[index]
-
-    #Grab indices with distinct values
-    d_index = np.where(np.diff(probs))[0]
-    t_holds = np.r_[d_index, y_vals.size - 1]
-
-    # sum up with true positives       
-    tps = np.cumsum(y_vals)[t_holds]
-    tpr = tps/tps[-1]
-    #calculate the false positive
-    fps = 1 + t_holds - tps
-    fpr = fps/fps[-1]
-    return fpr, tpr
 
 #feature selection
 
@@ -170,8 +139,10 @@ hotel_upd=hotel_upd.drop(['market_segment','market_Undef',
 if(par.binary_classification==True):
     hotel_upd = hotel_upd[hotel_upd['reservation_status'] != 'No-Show']
 
-
-hotel_sample = hotel_upd.sample(n=par.total_size,random_state=seed,replace=False)
+if(par.full_data==False):
+    hotel_sample = hotel_upd.sample(n=par.total_size,random_state=seed,replace=False)
+else:
+    hotel_sample=hotel_upd
 #hotel_sample = hotel_upd.sample(n=10000,random_state=seed,replace=False)
 
 #train & test
@@ -183,4 +154,6 @@ hotel_train, hotel_test = train_test_split(hotel_sample, test_size=par.percentag
 print(hotel_train['reservation_status'].value_counts())
 print(hotel_test['reservation_status'].value_counts())
 
-
+#saving train & test files 
+hotel_train.to_csv('.\data\hotel_train.csv', index = False)
+hotel_test.to_csv('.\data\hotel_test.csv', index = False)

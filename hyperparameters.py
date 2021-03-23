@@ -9,8 +9,9 @@ Created on Mon Mar 22 19:49:13 2021
 ############## Hyperparameters file ############
 
 ########    for total dataset size  ########
-binary_classification = False  #don't consider no-show
+binary_classification = True  #don't consider no-show
+full_data= False
 total_size=10000
 
 ##### for train test split ######
-percentage_test=0.2
+percentage_test=0.4
