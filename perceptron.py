@@ -7,6 +7,7 @@ Created on Tue Mar 23 06:50:39 2021
 
 #import Data_preprocessing as dat
 import helper_functions as helper
+import hyperparameters as par
 
 from sklearn.linear_model import Perceptron
 import numpy as np
@@ -17,13 +18,12 @@ seed = 0
 random.seed(seed)
 np.random.seed(seed)
 
-epochs=5
-accuracy_list=[]
 
 hotel_train = pd.read_csv('.\data\hotel_train.csv')
 hotel_test = pd.read_csv('.\data\hotel_test.csv')
 
-# training
+
+######################### sklearn Perceptron ################################
 
 #no regularization (penalty), max_iter is #epochs
 per = Perceptron(penalty=None, fit_intercept=True,max_iter=1000, tol=1e-3, shuffle=True,
@@ -35,7 +35,7 @@ per_l2=Perceptron(penalty='l2', fit_intercept=True,max_iter=1000, tol=1e-3, shuf
 per_elas=Perceptron(penalty='elasticnet', fit_intercept=True,max_iter=1000, tol=1e-3, shuffle=True,
                  eta0=1, random_state=seed)
 
-def perceptron_algo(train,test,response='reservation_status'):
+def perceptron_algo(train,test,response='binary_response'):
     X_train = train.drop([response], axis=1)
     Y_train = train[response]
     X_test = test.drop([response], axis=1)
@@ -70,3 +70,46 @@ def perceptron_algo(train,test,response='reservation_status'):
 
 perceptron_algo(hotel_train,hotel_test)
 
+###############################################################################
+
+
+
+########################## Perceptron ################################
+
+accuracy_list=[]
+
+class perceptron_implement():
+    def __init__(self,train,test,response='binary_response'):
+        self.train=train
+        self.test=test
+        self.response=response
+        self.nsize = train.shape[0]
+        self.npar = train.shape[1] - 1 #contains response
+        self.weights = [0.0] * self.npar
+        self.bias = 0.0                 
+        
+        
+    def training(self):
+        X_train = self.train.drop([self.response], axis=1)
+        Y_train = self.train[self.response]
+        
+        
+        for epoch in range(par.epochs):
+            update_counter=0
+            for n in range(self.nsize):
+            
+                decision_boundary = Y_train.iloc[n] * (X_train.iloc[n].dot(self.weights) + self.bias)
+            
+                if(decision_boundary<=0.0):
+                    update_counter+=1
+                    self.weights += Y_train.iloc[0]*X_train.iloc[0]
+                    self.bias += Y_train.iloc[0]
+            print("Epoch: %d Accuracy: %0.3f%%" %(epoch+1, 100*update_counter/self.nsize))   
+        
+        #print(update_counter)
+
+
+#percept=perceptron_implement(hotel_train,hotel_test)
+#percept.training()
+
+###############################################################################

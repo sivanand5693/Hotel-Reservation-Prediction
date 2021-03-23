@@ -15,3 +15,8 @@ total_size=10000
 
 ##### for train test split ######
 percentage_test=0.4
+
+
+
+######## training own implementation #########
+epochs=10

@@ -76,6 +76,18 @@ def f4(row):
 hotel_upd['children'] = hotel_upd.apply(f4, axis=1)
 
 
+#creating binary response variable
+def f5(row):
+    if row['reservation_status']=='Check-Out':
+        val = 1
+    elif row['reservation_status']=='Canceled':
+        val = -1
+    else:
+        val = 0
+    return val
+ 
+hotel_upd['binary_response'] = hotel_upd.apply(f5, axis=1)
+
 #feature selection
 
 #mutual information
@@ -138,6 +150,8 @@ hotel_upd=hotel_upd.drop(['market_segment','market_Undef',
 
 if(par.binary_classification==True):
     hotel_upd = hotel_upd[hotel_upd['reservation_status'] != 'No-Show']
+    hotel_upd = hotel_upd.drop(['reservation_status'],axis=1)
+    
 
 if(par.full_data==False):
     hotel_sample = hotel_upd.sample(n=par.total_size,random_state=seed,replace=False)
@@ -151,8 +165,12 @@ hotel_train, hotel_test = train_test_split(hotel_sample, test_size=par.percentag
 
 
 #count of response variable
-print(hotel_train['reservation_status'].value_counts())
-print(hotel_test['reservation_status'].value_counts())
+if(par.binary_classification==True):
+    print(hotel_train['binary_response'].value_counts())
+    print(hotel_test['binary_response'].value_counts())
+else:
+    print(hotel_train['reservation_status'].value_counts())
+    print(hotel_test['reservation_status'].value_counts())
 
 #saving train & test files 
 hotel_train.to_csv('.\data\hotel_train.csv', index = False)
